@@ -1,0 +1,89 @@
+extends layout
+
+block content
+    script(src="/javascripts/library.js")
+    link(rel='stylesheet', href='/stylesheets/library.css')
+    table
+        tr
+            td
+                table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                    tr
+                        th № экземпляра
+                        th Автор
+                        th Название
+                        th Год выпуска
+                        th Наличие
+                        th Дата возврата
+                        td
+                    - for(var i = 0; i < books.length; i++)
+                        - var temp=`window.location.href='http://localhost:3000/books/${books[i].index}'`
+                        tr
+                            td(onclick=temp)= books[i].index + 1
+                            td(onclick=temp)= books[i].author
+                            td(onclick=temp)= books[i].name
+                            td(onclick=temp)= books[i].release
+                            if (books[i].in_stock)
+                                td(onclick=temp) +
+                            else
+                                td(onclick=temp) -
+                            td(onclick=temp)= books[i].return_date
+                            td
+                                button(onclick=`delete_book(${i});`)
+                                    img(src='/images/trash.png', width=15, height=15)
+            td
+                ul
+                    li
+                        button(onclick='filter_btn();', id="filterbtn") Фильтрация
+                    li
+                        button(onclick='add_btn();', id="addbtn") Добавить книгу
+                    if is_back
+                        li
+                            button(onclick="window.location.href='http://localhost:3000/books';")
+                                img(src='/images/back.png', width=20, height=20)
+            td(id="add_books", hidden)
+                table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                    tr
+                        th Автор
+                        td
+                            input(name="author", id="element1", onkeyup='is_fields_correct();')
+                    tr
+                        th Название
+                        td
+                            input(name="name", id="element2", onkeyup='is_fields_correct();')
+                    tr
+                        th Год выпуска
+                        td
+                            input(name="release", id="element3", onkeyup='is_fields_correct();')
+                    tr
+                        td(colspan="2")
+                            button(onclick='add_book();', id="btn", disabled) Добавить
+            td(id="filt", hidden)
+                table
+                    tr
+                        td
+                            table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                                tr
+                                    td
+                                        input(id="element4", name="in_stock", type="radio", value=0, checked)
+                                        =" Книга отсутствует"
+                                tr
+                                    td
+                                        input(id="element5", name="in_stock", type="radio", value=1)
+                                        =" Книга присутствует"
+                                tr
+                                    td
+                                        button(onclick="book_filter_by_instock();") Отсортировать
+                        td
+                            table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                                tr
+                                    td
+                                        input(id="element6", name="overdue", type="radio", value=0, checked)
+                                        =" Просрочена"
+                                tr
+                                    td
+                                        input(id="element7", name="overdue", type="radio", value=1)
+                                        =" Не просрочена"
+                                tr
+                                    td
+                                        button(onclick="book_filter_by_overdue();") Отсортировать
+    button(id="btn_start", onclick='window.location = "http://localhost:3000";') Перейти на стартовую страницу

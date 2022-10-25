@@ -1,0 +1,15 @@
+li {
+    list-style-type: none;
+    padding-top: 10px;
+}
+
+table {
+    position: relative;
+    left: 37px;
+    top: 1px;
+}
+
+#btn_start {
+    position: absolute;
+    left: 78px;
+}

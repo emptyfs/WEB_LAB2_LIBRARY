@@ -1,0 +1,57 @@
+extends layout
+
+block content
+    table
+        tr
+            td
+                form
+                    table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                        tr
+                            th Автор
+                            td
+                                input(type="text", value=author, id="element1", name="author")
+                        tr
+                            th Название
+                            td
+                                input(type="text", value=name, id="element2", name="name")
+                        tr
+                            th Год выпуска
+                            td
+                                input(type="text", value=release, id="element3", name="release")
+                        tr
+                            th В наличии
+                            if in_stock
+                                td +
+                            else
+                                td -
+                        if !in_stock
+                            tr
+                                th Должна быть возвращена
+                                td(id="out_stockdate")= out_stock_date
+                            tr
+                                th Была взята
+                                td(id="out_stockname")= out_stock_pname
+            td
+                form
+                    table(class="w3-table w3-striped w3-border w3-bordered w3-centered w3-hoverable")
+                        if in_stock
+                            tr
+                                th Кто берет
+                                td
+                                    input(type="text", id="element4", placeholder="Иванов И.А.")
+                            tr
+                                th Когда вернуть
+                                td
+                                    input(type="text", id="element5", placeholder=`28.10.2022`,
+                                        onkeyup='is_fields_correct()')
+
+                        tr
+                            if in_stock
+                                button(id='btn' onclick='give_book()', disabled) Взять книгу
+                            else
+                                button(id='btn' onclick='return_book()') Вернуть книгу
+    button(onclick="window.location.href='http://localhost:3000/books';", id="backbtn")
+        img(src='/images/back.png', width=20, height=20)
+    button(onclick="save()") Сохранить изменения
+    //u(style="position: absolute;left:50px") Чтобы сохранить изменения, нажмите клавишу "Enter"
+    script(src="/javascripts/book.js")

@@ -1,0 +1,137 @@
+#!/usr/bin/env node
+// точка входа приложения
+// Этот файл настраивает некоторые обработчики ошибок приложения,
+// а затем загружает app.js для выполнения остальной работы
+
+//body-parser: -- анализирует часть тела входящего запроса HTTP и облегчает извлечение из него различных частей. Например,
+// мы можно читать POST-параметры.
+// cookie-parser: разбирает заголовок и заполняет req.cookies (по сути, даёт удобный метод для доступа к информации cookie).
+// debug: небольшой отладчик, работающий по образцу методики отладки ядра node.
+// morgan: средство логирования запросов HTTP для node.
+// serve-favicon: средство обработки favicon (значка, используемого для представления сайта на вкладках браузера,
+// закладках и т. д)
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('../app'); //создание объекта основного приложения (импорт из текущего каталогога app.js)
+const debug = require('debug')('exp:server'); //подгружаем модуль debug
+//'exp:server' - индентификатор, которым дебагер будет метить вывод
+const http = require('http');
+const indexRouter = require("../routes"); //подгружаем модуль http
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+const port = normalizePort(process.env.PORT || '3000');
+// process.env.PORT || '3000' - все, что находится в переменной окружения PORT или 3000-ый порт
+app.set('port', port); //указываем приложению, какой порт надо слушать (устанавливаем его порт в полученный ранее)
+
+/**
+ * Create HTTP server.
+ */
+
+const server = http.createServer(app);//создание сервера
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port); //указываем серверу тот же порт
+server.on('error', onError); //регистрируем событие error с функцией onError
+server.on('listening', onListening); //регистрируем событие listening и передаем функцию onListening
+
+
+
+//объект Process - экземпляр EventEmitter(обработка событий)
+//Добавление события на SIGINT (завершение программы)
+process.on('SIGINT', () => { //сохранение книг в в файле .json
+  server.close(function () { //останавливает HTTP-сервер от приема новых подключений
+    let book_list = app.book_list; //массив книг
+    let new_book_list = {};
+    //console.log(book_list);
+
+    for (let i = 0; i < book_list.length; i++) {
+      let index = book_list[i].index;
+      delete book_list[i].index;
+      new_book_list[index] = book_list[i];
+    }
+    //console.log(new_book_list);
+    write_file('library.json', JSON.stringify(new_book_list));
+    //write_file('library.json', JSON.stringify(app.book_list));
+  });
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  const port = parseInt(val, 10);//принимает строку, возвращает число в с/c равной radix
+
+  if (isNaN(port)) { //если порт - не число, то возвращает val
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) { //если порт >= 0 - возвращает порт
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+function write_file(file_name, message)  //запись в файл
+{
+  const fs = require("fs");
+  fs.writeFile(file_name, message, (err) => {
+    if (err)
+    {
+      throw err;
+    }
+    console.log('Books have been saved...');
+  });
+}
